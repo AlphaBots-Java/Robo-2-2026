@@ -16,4 +16,18 @@ public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
   }
+
+  public static class TalonTestConstants {
+    // Set this to the CAN ID of the Talon FX you want to test.
+    public static final int kTalonId = 0;
+    // CAN bus name the Talon FX is on ("rio" for the roboRIO bus, or your CANivore name).
+    public static final String kCanBus = "rio";
+  }
+
+  public static class PigeonTestConstants {
+    // Set this to the CAN ID of the Pigeon 2 you want to test.
+    public static final int kPigeonId = 0;
+    // CAN bus name the Pigeon 2 is on ("rio" for the roboRIO bus, or your CANivore name).
+    public static final String kCanBus = "rio";
+  }
 }
