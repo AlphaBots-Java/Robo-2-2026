@@ -4,8 +4,8 @@ A minimal FRC robot project (Java, WPILib 2026) used purely to practice and tune
 
 ## Hardware
 
-- **Drive motors:** REV NEO (brushless), controlled by REV SPARK MAX / SPARK Flex
-- **Steering (angle) motors:** CTRE Talon FX
+- **Swerve drive & steering motors:** REV NEO (brushless), controlled by REV SPARK MAX (all 8 corner motors)
+- **Bench-test motor:** CTRE Talon FX (standalone test rig, not part of the swerve modules)
 - **IMU:** CTRE Pigeon 2
 
 ## Controls
@@ -19,7 +19,19 @@ One PS5 (DualSense) controller on port 0 (`CommandPS5Controller`).
 3. Simulate: `./gradlew simulateJava`
 4. Deploy to the RoboRIO: `./gradlew deploy`
 
+## Driving the Swerve
+
+Set the 8 motor CAN IDs and the gyro CAN ID in `SwerveConstants` ([Constants.java](src/main/java/frc/robot/Constants.java)), deploy, enable in **Teleop**:
+
+- **Left stick** — translation (forward/back, strafe)
+- **Right stick X** — rotation
+- **Options** — zeroes the gyro heading (point the robot downfield and press this first — driving is field-relative)
+
+There is no absolute encoder on the modules yet, so each steering SPARK MAX's relative position is zeroed on boot — **manually point every wheel straight forward before enabling the robot**, or the modules will drive at the wrong angle. Module angles/speeds and heading are published to SmartDashboard under `Swerve/`. Tune `kSteerP/I/D`, the gear ratios, and the track width/wheelbase in `SwerveConstants` to match your actual module hardware.
+
 ## Bench-Testing the Talon FX
+
+This is a standalone test rig for a single Talon FX — not one of the swerve module motors (those are all SPARK MAX, see above).
 
 Set the CAN ID in `TalonTestConstants.kTalonId` ([Constants.java](src/main/java/frc/robot/Constants.java)), deploy, then put the Driver Station into **Test mode**:
 
@@ -37,4 +49,4 @@ Set the CAN ID in `PigeonTestConstants.kPigeonId` ([Constants.java](src/main/jav
 
 ## Status
 
-Talon FX bench test is wired up. Swerve subsystem, module code, and drive commands are in progress.
+Swerve drivetrain (4 modules, field-relative teleop drive) plus individual Talon FX / Pigeon 2 bench tests are wired up. No absolute encoders yet — steering zeroes to whatever position the wheel is in at boot.

@@ -5,9 +5,12 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.SwerveConstants;
 import frc.robot.subsystems.PigeonTestSubsystem;
 import frc.robot.subsystems.TalonTestSubsystem;
+import frc.robot.subsystems.swerve.SwerveSubsystem;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
@@ -21,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
  */
 public class RobotContainer {
   // The robot's subsystems are defined here...
+  private final SwerveSubsystem m_swerveSubsystem = new SwerveSubsystem();
   private final TalonTestSubsystem m_talonTestSubsystem = new TalonTestSubsystem();
   private final PigeonTestSubsystem m_pigeonTestSubsystem = new PigeonTestSubsystem();
 
@@ -30,7 +34,27 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    configureDefaultCommands();
     configureBindings();
+  }
+
+  /**
+   * Left stick drives translation, right stick X drives rotation, field-relative to the gyro
+   * heading. This is the normal drive command and runs any time no other command needs the
+   * drivetrain (i.e. all of teleop).
+   */
+  private void configureDefaultCommands() {
+    m_swerveSubsystem.setDefaultCommand(
+        m_swerveSubsystem.run(
+            () ->
+                m_swerveSubsystem.drive(
+                    -MathUtil.applyDeadband(m_driverController.getLeftY(), OperatorConstants.kJoystickDeadband)
+                        * SwerveConstants.kMaxSpeedMetersPerSecond,
+                    -MathUtil.applyDeadband(m_driverController.getLeftX(), OperatorConstants.kJoystickDeadband)
+                        * SwerveConstants.kMaxSpeedMetersPerSecond,
+                    -MathUtil.applyDeadband(m_driverController.getRightX(), OperatorConstants.kJoystickDeadband)
+                        * SwerveConstants.kMaxAngularSpeedRadiansPerSecond,
+                    true)));
   }
 
   /**
@@ -41,6 +65,10 @@ public class RobotContainer {
    * done.
    */
   private void configureBindings() {
+    // Options re-zeroes the gyro heading. Point the robot downfield and press this before
+    // driving field-relative.
+    m_driverController.options().onTrue(m_swerveSubsystem.zeroHeadingCommand());
+
     // Hold Cross to spin the test Talon FX forward, Circle to spin it in reverse.
     m_driverController
         .cross()
